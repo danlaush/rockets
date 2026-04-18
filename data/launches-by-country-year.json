@@ -20,7 +20,7 @@
     { "code": "JP", "name": "Japan",          "centroid": [138.0,  36.0] },
     { "code": "IN", "name": "India",          "centroid": [ 78.0,  21.0] },
     { "code": "FR", "name": "France",         "centroid": [  2.5,  46.5] },
-    { "code": "EU", "name": "Europe",         "centroid": [-52.78,  5.23] },
+    { "code": "EU", "name": "Europe",         "centroid": [ 15.0,  50.0] },
     { "code": "GB", "name": "United Kingdom", "centroid": [ -2.0,  54.0] },
     { "code": "IL", "name": "Israel",         "centroid": [ 35.0,  31.5] },
     { "code": "IR", "name": "Iran",           "centroid": [ 53.0,  32.5] },
