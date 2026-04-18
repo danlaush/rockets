@@ -640,14 +640,14 @@ body[data-theme="tron"] .pulse-head { r: 2.2; }
     flex: 0 0 auto;
     background: transparent;
     color: var(--fg);
-    border: 1.5px solid var(--fg);
+    border: none;
     border-radius: 50%;
     cursor: pointer;
-    transition: background-color 120ms;
+    transition: background-color 120ms, color 120ms;
   }
   .timeline .settings-btn:hover,
   .timeline .settings-btn:focus-visible {
-    background: var(--highlight);
+    color: var(--fg-muted);
     outline: none;
   }
   .timeline .settings-btn svg {
