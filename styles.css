@@ -1,0 +1,380 @@
+:root {
+  --bg:        #f2efe8;
+  --fg:        #1a1a1a;
+  --fg-muted:  #5a5a5a;
+  --rule:      #c9c3b5;
+  --launch:    #c84a2d;
+  --highlight: #e9e2cf;
+  --panel-bg:  var(--bg);
+  --country-stroke: var(--fg);
+  --country-stroke-width: 0.8;
+  --country-fill-visible: var(--highlight);
+  --globe-ocean-fill: var(--bg);
+  --roughen-scale: 1.2;
+  --glow: none;
+  --pulse-glow: none;
+  --group-glow: none;
+
+  --font-hand: "Caveat", "Shadows Into Light", ui-sans-serif, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+body[data-theme="tron"] {
+  --bg:        #070b14;
+  --fg:        #a7c4ff;
+  --fg-muted:  #6e85b5;
+  --rule:      #1b2640;
+  --launch:    #22d3ee;
+  --highlight: #0e1628;
+  --panel-bg:  #0a1020;
+  --country-stroke: #2b3a66;
+  --country-stroke-width: 0.9;
+  --country-fill-visible: #0f1a30;
+  --globe-ocean-fill: #050812;
+  --roughen-scale: 0.3;
+  --glow: none;
+  --pulse-glow: none;
+  --group-glow: drop-shadow(0 0 3px rgba(140, 210, 255, 0.35));
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  min-height: 100vh;
+}
+
+body { overflow: hidden; }
+
+.boot {
+  font-family: var(--font-hand);
+  font-size: 28px;
+  padding: 40px;
+  color: var(--fg-muted);
+}
+
+/* ---------- layout ---------- */
+
+.app {
+  display: grid;
+  grid-template-columns: 240px 1fr 220px;
+  grid-template-rows: 56px 1fr 130px;
+  grid-template-areas:
+    "header  header  header"
+    "left    globe   right"
+    "footer  footer  footer";
+  height: 100vh;
+  width: 100vw;
+  gap: 0;
+}
+
+.header { grid-area: header; }
+.left   { grid-area: left; }
+.center { grid-area: globe; }
+.right  { grid-area: right; }
+.footer { grid-area: footer; }
+
+.panel {
+  border: 1.5px solid var(--fg);
+  border-radius: 8px;
+  margin: 6px;
+  padding: 10px 12px;
+  background: var(--panel-bg);
+}
+
+/* ---------- header ---------- */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 16px 0;
+}
+.header .spacer { flex: 1; }
+.theme-toggle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--panel-bg);
+  color: var(--fg);
+  border: 1.5px solid var(--fg);
+  border-radius: 16px;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+.theme-toggle:hover { background: var(--highlight); }
+.header .brand {
+  font-family: var(--font-hand);
+  font-size: 26px;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header .brand svg { width: 22px; height: 22px; }
+.header .latest {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--fg-muted);
+  margin-left: 20px;
+  padding: 4px 10px;
+  border: 1px solid var(--fg);
+  border-radius: 16px;
+  background: var(--bg);
+  max-width: 60ch;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ---------- country list ---------- */
+
+.country-list h2,
+.stats h2 {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  margin: 0 0 8px;
+  color: var(--fg-muted);
+}
+
+.country-list ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.country-list li {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: background-color 120ms;
+  cursor: pointer;
+  font-family: var(--font-hand);
+  font-size: 18px;
+  line-height: 1.1;
+}
+.country-list li:hover,
+.country-list li.focus { background: var(--highlight); }
+
+.country-list .box {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--fg);
+  border-radius: 2px;
+  display: inline-block;
+  position: relative;
+}
+.country-list .box.on::after {
+  content: "×";
+  position: absolute;
+  inset: -4px 0 0 1px;
+  font-family: var(--font-hand);
+  font-size: 22px;
+  line-height: 1;
+  color: var(--fg);
+}
+
+.country-list .count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+/* ---------- globe ---------- */
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.globe-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.globe-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.globe-svg:active { cursor: grabbing; }
+
+.globe-ocean { fill: var(--globe-ocean-fill); stroke: var(--fg); stroke-width: 1.5; }
+.globe-graticule {
+  fill: none;
+  stroke: var(--rule);
+  stroke-width: 0.5;
+  stroke-dasharray: 2 3;
+}
+.globe-country {
+  fill: transparent;
+  stroke: var(--country-stroke);
+  stroke-width: var(--country-stroke-width);
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  transition: stroke 180ms, fill 180ms;
+}
+.globe-country.visible { fill: var(--country-fill-visible); }
+.globe-country.focus   { fill: var(--country-fill-visible); stroke-width: calc(var(--country-stroke-width) + 0.6); }
+
+/* Group-level glow in tron: one compositing pass for the whole layer, rather
+   than one per element. Big perf win vs. `filter` on each <path>. */
+body[data-theme="tron"] .globe-countries,
+body[data-theme="tron"] .globe-active-overlay,
+body[data-theme="tron"] .launch-layer { filter: var(--group-glow); }
+.globe-active-overlay path {
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+/* ---------- pulses ---------- */
+
+.launch-layer { pointer-events: none; }
+.pulse-arc-seg {
+  fill: none;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+body[data-theme="tron"] .pulse-arc-seg { stroke-width: 1.6; }
+body[data-theme="tron"] .pulse-head { r: 2.2; }
+
+/* ---------- stats ---------- */
+
+.stats .stat { margin-bottom: 14px; }
+.stats .label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.stats .big {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  line-height: 1.1;
+  color: var(--fg);
+}
+.stats .small {
+  font-family: var(--font-hand);
+  font-size: 18px;
+  color: var(--fg);
+}
+
+/* ---------- timeline ---------- */
+
+.timeline {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: stretch;
+  height: 100%;
+}
+
+.timeline .controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding-left: 8px;
+}
+
+.timeline button {
+  font-family: var(--font-hand);
+  font-size: 16px;
+  background: var(--bg);
+  border: 1.5px solid var(--fg);
+  border-radius: 6px;
+  padding: 2px 10px;
+  cursor: pointer;
+  color: var(--fg);
+  min-width: 36px;
+}
+.timeline button.active { background: var(--fg); color: var(--bg); }
+.timeline button.play {
+  min-width: 40px;
+  font-size: 14px;
+}
+
+.timeline .track-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 6px 10px 6px 0;
+}
+
+.timeline .focus-label {
+  font-family: var(--font-hand);
+  font-size: 18px;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+.timeline svg {
+  width: 100%;
+  height: 80px;
+  display: block;
+  touch-action: none;
+  overflow: visible;
+}
+.timeline .axis-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--fg-muted);
+}
+.timeline .tick {
+  stroke: var(--fg);
+  stroke-width: 1;
+}
+.timeline .rule {
+  stroke: var(--fg);
+  stroke-width: 1.5;
+}
+.timeline .spark {
+  fill: none;
+  stroke: var(--fg);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  opacity: 0.75;
+}
+.timeline .playhead {
+  fill: var(--launch);
+  stroke: var(--fg);
+  stroke-width: 1;
+  cursor: grab;
+}
+.timeline .playhead-line {
+  stroke: var(--launch);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+
+/* ---------- footer ---------- */
+
+.footer {
+  display: block;
+  font-size: 11px;
+  color: var(--fg-muted);
+}
+.footer a { color: var(--fg-muted); }
+.footer.panel { padding: 6px 12px; }
+
+/* ---------- tiny helpers ---------- */
+.sr { position: absolute; left: -9999px; }

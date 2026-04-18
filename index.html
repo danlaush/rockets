@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Global Rocket Launch Tracker</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="./styles.css" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "preact":          "https://esm.sh/preact@10.22.0",
+      "preact/hooks":    "https://esm.sh/preact@10.22.0/hooks",
+      "htm/preact":      "https://esm.sh/htm@3.1.1/preact",
+      "@preact/signals":
+        "https://esm.sh/@preact/signals@1.2.3?deps=preact@10.22.0",
+      "d3-geo":          "https://esm.sh/d3-geo@3.1.1"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app"><p class="boot">Loading launches…</p></div>
+
+  <!-- SVG filter for the hand-drawn "roughen" effect, referenced in Globe.js -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <filter id="roughen" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="2" seed="4" />
+        <feDisplacementMap in="SourceGraphic" scale="1.2" />
+      </filter>
+    </defs>
+  </svg>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
