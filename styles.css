@@ -36,7 +36,22 @@ body[data-theme="tron"] {
   --glow: none;
   --pulse-glow: none;
   --group-glow: drop-shadow(0 0 3px rgba(140, 210, 255, 0.35));
+
+  /* Swap the handwriting face for a geometric display face that fits the
+     synthwave/computer-display vibe. Orbitron reads chunkier than Caveat at
+     the same px so the spots that use --font-hand downshift slightly below. */
+  --font-hand: "Orbitron", "JetBrains Mono", ui-sans-serif, sans-serif;
 }
+
+/* Tron-specific typographic tweaks: Orbitron needs less size + tighter tracking
+   to feel balanced in the same layout slots Caveat occupied. */
+body[data-theme="tron"] .header .brand { font-size: 20px; letter-spacing: 0.08em; }
+body[data-theme="tron"] .country-list li { font-size: 13px; letter-spacing: 0.04em; }
+body[data-theme="tron"] .stats .small { font-size: 13px; letter-spacing: 0.04em; }
+body[data-theme="tron"] .timeline button { font-size: 12px; letter-spacing: 0.08em; }
+body[data-theme="tron"] .timeline button.play { font-size: 13px; }
+body[data-theme="tron"] .timeline .focus-label { font-size: 14px; letter-spacing: 0.08em; }
+body[data-theme="tron"] .boot { font-size: 20px; letter-spacing: 0.08em; }
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -58,26 +73,63 @@ body { overflow: hidden; }
   color: var(--fg-muted);
 }
 
-/* ---------- layout ---------- */
+/* ---------- layout ----------
+   The globe canvas fills the entire viewport. The header, side panels, and
+   footer are fixed-positioned overlays that float above the globe. This keeps
+   all panels visible at any viewport size and lets the globe extend behind
+   them. */
 
 .app {
-  display: grid;
-  grid-template-columns: 240px 1fr 220px;
-  grid-template-rows: 56px 1fr 130px;
-  grid-template-areas:
-    "header  header  header"
-    "left    globe   right"
-    "footer  footer  footer";
+  position: relative;
   height: 100vh;
   width: 100vw;
-  gap: 0;
 }
 
-.header { grid-area: header; }
-.left   { grid-area: left; }
-.center { grid-area: globe; }
-.right  { grid-area: right; }
-.footer { grid-area: footer; }
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  z-index: 10;
+  pointer-events: none;
+}
+.header > * { pointer-events: auto; }
+
+.left {
+  position: fixed;
+  top: 56px;
+  left: 0;
+  width: 240px;
+  max-height: calc(100vh - 56px - 130px);
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.right {
+  position: fixed;
+  top: 56px;
+  right: 0;
+  width: 220px;
+  max-height: calc(100vh - 56px - 130px);
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.center {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 130px;
+  z-index: 10;
+}
 
 .panel {
   border: 1.5px solid var(--fg);
@@ -378,3 +430,106 @@ body[data-theme="tron"] .pulse-head { r: 2.2; }
 
 /* ---------- tiny helpers ---------- */
 .sr { position: absolute; left: -9999px; }
+
+/* By default the "short" brand is hidden; the mobile media query below
+   swaps which label is visible. */
+.brand-short { display: none; }
+
+/* ---------- mobile (narrow viewports) ----------
+   Goal: every panel is still visible on small screens. The globe continues
+   to fill the viewport underneath. */
+@media (max-width: 720px) {
+  /* Compact header: swap the long title for "ROCKETS" and drop the data line. */
+  .header {
+    height: 48px;
+    padding: 4px 10px 0;
+    gap: 8px;
+  }
+  .header .latest { display: none; }
+  .header .brand-full { display: none; }
+  .header .brand-short { display: inline; }
+  .header .brand { font-size: 24px; gap: 6px; }
+  .header .brand svg { width: 20px; height: 20px; }
+
+  /* Country list hidden on mobile (first pass; a picker will replace it). */
+  .left { display: none; }
+
+  /* Turn the stats panel into a full-width ticker bar directly under the header. */
+  .right {
+    top: 48px;
+    left: 0;
+    right: 0;
+    width: auto;
+    max-height: none;
+    overflow: visible;
+  }
+  .right .panel.stats {
+    margin: 2px 6px;
+    padding: 4px 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 18px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .right .panel.stats::-webkit-scrollbar { display: none; }
+  .stats h2 { display: none; }
+  .stats .stat {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .stats .label { font-size: 9px; }
+  .stats .big { font-size: 16px; }
+  .stats .small { font-size: 14px; }
+
+  /* Footer: left column (1/3) stacks a big play button above a 2x2 grid of
+     speed chips; right column (2/3) is the sparkline + axis. */
+  .footer { height: 150px; }
+  .footer.panel { padding: 6px 10px; }
+
+  .timeline {
+    grid-template-columns: 1fr 2fr;
+    gap: 10px;
+  }
+
+  .timeline .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: min-content;
+    gap: 6px;
+    padding: 0;
+    align-content: start;
+  }
+  .timeline .controls .play {
+    grid-column: 1 / -1;
+    min-width: 0;
+    padding: 10px 0;
+    font-size: 20px;
+  }
+  .timeline .controls button {
+    min-width: 0;
+    padding: 6px 0;
+  }
+
+  /* Keep the chart entirely inside the footer panel. Absolute-positioning the
+     focus label stops it from pushing the svg down when it wraps, and the
+     extra bottom padding on track-wrap gives axis labels headroom. */
+  .timeline .track-wrap {
+    padding: 0 4px 14px 0;
+    overflow: hidden;
+  }
+  .timeline .focus-label {
+    position: absolute;
+    top: 0;
+    right: 4px;
+    margin: 0;
+    line-height: 1.05;
+    font-size: 14px;
+    text-align: right;
+    max-width: 50%;
+  }
+}

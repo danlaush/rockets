@@ -29,7 +29,7 @@ function ThemeToggle() {
   return html`
     <button class="theme-toggle"
             title=${`Switch to ${next.label} theme`}
-            onClick=${cycleTheme}>${current === "paper" ? "Paper" : "Tron"}</button>
+            onClick=${cycleTheme}>Theme</button>
   `;
 }
 
@@ -37,7 +37,11 @@ function App({ launches, countries }) {
   return html`
     <div class="app">
       <header class="header">
-        <div class="brand"><${Rocket} /> GLOBAL ROCKET LAUNCH TRACKER</div>
+        <div class="brand">
+          <${Rocket} />
+          <span class="brand-full">GLOBAL ROCKET LAUNCH TRACKER</span>
+          <span class="brand-short">ROCKETS</span>
+        </div>
         <div class="latest">Data: ${launches.source.name} · captured ${launches.source.captured_at}</div>
         <div class="spacer"></div>
         <${ThemeToggle} />
