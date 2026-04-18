@@ -1,7 +1,7 @@
 import { effect } from "@preact/signals";
 import {
   virtualDate, playing, speed,
-  visibleCountries, emitPulse, activePulses, frameTick,
+  emitPulse, activePulses, frameTick,
   START_DATE, END_DATE,
 } from "./state.js";
 
@@ -88,11 +88,11 @@ export function startPlayback(events) {
       const deltaDays = dt * speed.value;
       const nextT = Math.min(END_DATE.getTime(), prev + deltaDays * MS_PER_DAY);
 
-      // Emit pulses for [prev, nextT].
-      const visible = visibleCountries.value;
+      // Emit pulses for [prev, nextT]. Globe shows every launch; the checkbox
+      // list scopes stats + chart aggregates, not the globe animation.
       while (cursor < events.length && events[cursor].t <= nextT) {
         const e = events[cursor++];
-        if (visible.has(e.code)) emitPulse(e.code);
+        emitPulse(e.code);
       }
 
       // Update the signal AFTER emitting so effect-observers see one update.

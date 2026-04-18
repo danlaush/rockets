@@ -2,7 +2,7 @@ import { html } from "../html.js";
 import { useEffect, useRef, useState } from "preact/hooks";
 import {
   virtualDate, playing, speedMult, SPEEDS,
-  START_DATE, END_DATE, focusCountry,
+  START_DATE, END_DATE, visibleCountries,
 } from "../state.js";
 
 const MS_PER_DAY = 86_400_000;
@@ -42,7 +42,7 @@ export function Timeline({ launches }) {
   const vd = virtualDate.value;
   const play = playing.value;
   const sm = speedMult.value;
-  const focus = focusCountry.value;
+  const visible = visibleCountries.value;
 
   // Year tick lines (every 5 years, labels every 10).
   const startYear = START_DATE.getUTCFullYear();
@@ -60,22 +60,39 @@ export function Timeline({ launches }) {
   const playheadX = padL + dateToFrac(vd) * innerW;
   const axisY = h - 12;
 
-  // Sparkline for focused country.
-  const focusCounts = launches.launches[focus] || {};
+  // Sparkline: sum of launches per year across the currently-checked
+  // countries. With the default (all checked) this shows the worldwide total.
+  const yearCounts = {};
+  for (const code of visible) {
+    const series = launches.launches[code];
+    if (!series) continue;
+    for (const yStr of Object.keys(series)) {
+      yearCounts[yStr] = (yearCounts[yStr] || 0) + series[yStr];
+    }
+  }
   let maxCount = 1;
-  for (const y of Object.keys(focusCounts)) maxCount = Math.max(maxCount, focusCounts[y]);
+  for (const y of Object.keys(yearCounts)) maxCount = Math.max(maxCount, yearCounts[y]);
   const sparkH = 46;
   const sparkTop = 4;
   const sparkBase = sparkTop + sparkH;
   const sparkPoints = [];
   for (let y = startYear; y <= endYear; y++) {
-    const c = focusCounts[String(y)] || 0;
+    const c = yearCounts[String(y)] || 0;
     const px = yearX(y);
     const py = sparkBase - (c / maxCount) * sparkH;
     sparkPoints.push([px, py]);
   }
   const sparkPath =
     "M " + sparkPoints.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(" L ");
+
+  // Describe the current selection for the chart's label.
+  const totalEntities = launches.entities.length;
+  const selectionLabel = (() => {
+    if (visible.size === 0) return "None";
+    if (visible.size === totalEntities) return "World";
+    if (visible.size === 1) return [...visible][0];
+    return `${visible.size} countries`;
+  })();
 
   // Scrub handling.
   const scrubbing = useRef(false);
@@ -146,7 +163,7 @@ export function Timeline({ launches }) {
         `)}
       </div>
       <div class="track-wrap" ref=${wrapRef}>
-        <div class="focus-label">${focus} — ${fmtDate(vd)}</div>
+        <div class="focus-label">${selectionLabel} — ${fmtDate(vd)}</div>
         <svg ref=${svgRef}
              viewBox=${`0 0 ${w} ${h}`}
              onPointerDown=${onPointerDown}

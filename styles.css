@@ -330,6 +330,19 @@ body[data-theme="tron"] .pulse-head { r: 2.2; }
   font-size: 18px;
   color: var(--fg);
 }
+/* The rate's numeric portion ("121.8") is rendered in the mono face so we
+   actually get tabular figures. Pinned to 5ch because the max possible value
+   is "XXX.X" (max ~365.3 when a country has a single launch in the year);
+   right-aligned so the trailing " days" stays in a stable column. */
+.stats .small .num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  display: inline-block;
+  min-width: 5ch;
+  text-align: right;
+}
+/* Desktop shows the long labels; mobile swaps these in the media query. */
+.stats .label-short { display: none; }
 
 /* ---------- timeline ---------- */
 
@@ -341,9 +354,16 @@ body[data-theme="tron"] .pulse-head { r: 2.2; }
   height: 100%;
 }
 
+/* Desktop controls: a prominent square play button on the left and a 2x2
+   grid of speed chips on the right. Layout mirrors the mobile layout at a
+   more generous size so the eye-in / eye-out experience is consistent. */
 .timeline .controls {
-  display: flex;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  row-gap: 6px;
+  align-content: center;
   align-items: center;
   padding-left: 8px;
 }
@@ -360,9 +380,19 @@ body[data-theme="tron"] .pulse-head { r: 2.2; }
   min-width: 36px;
 }
 .timeline button.active { background: var(--fg); color: var(--bg); }
+
 .timeline button.play {
-  min-width: 40px;
-  font-size: 14px;
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  width: 56px;
+  height: 56px;
+  min-width: 0;
+  padding: 0;
+  font-size: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
 }
 
 .timeline .track-wrap {
@@ -469,22 +499,40 @@ body[data-theme="tron"] .pulse-head { r: 2.2; }
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 18px;
+    justify-content: space-between;
+    gap: 10px;
+    /* Kept as a safety net for very narrow viewports; the sizing below is
+       tuned so the row actually fits without needing to scroll on typical
+       phones. */
     overflow-x: auto;
     scrollbar-width: none;
   }
   .right .panel.stats::-webkit-scrollbar { display: none; }
   .stats h2 { display: none; }
+  .stats .label-full { display: none; }
+  .stats .label-short { display: inline; }
   .stats .stat {
     margin: 0;
     display: flex;
     align-items: baseline;
     gap: 6px;
     white-space: nowrap;
+    flex: 0 0 auto;
   }
-  .stats .label { font-size: 9px; }
-  .stats .big { font-size: 16px; }
-  .stats .small { font-size: 14px; }
+  .stats .label { font-size: 10px; }
+  .stats .big { font-size: 15px; font-variant-numeric: tabular-nums; }
+  .stats .small { font-size: 13px; }
+
+  /* Pin the width of the two numeric slots so that digit changes during
+     playback never reflow the ticker and never shift the horizontal scroll
+     position. Both .big values use JetBrains Mono, so `ch` units map cleanly
+     to a single monospaced glyph.
+       - Total launches maxes out at "9,999"   (5 glyphs incl. the comma)
+       - Current year  maxes out at "999"      (3 glyphs)
+     The rate (.small) is the last item in DOM order, so its width can still
+     vary without causing any shift of its neighbors. */
+  .stats .stat-total .big { min-width: 5ch; text-align: left; }
+  .stats .stat-year  .big { min-width: 3ch; text-align: left; }
 
   /* Footer: left column (1/3) stacks a big play button above a 2x2 grid of
      speed chips; right column (2/3) is the sparkline + axis. */
@@ -506,9 +554,13 @@ body[data-theme="tron"] .pulse-head { r: 2.2; }
   }
   .timeline .controls .play {
     grid-column: 1 / -1;
+    grid-row: auto;
+    width: auto;
+    height: auto;
     min-width: 0;
     padding: 10px 0;
     font-size: 20px;
+    margin-right: 0;
   }
   .timeline .controls button {
     min-width: 0;
@@ -525,11 +577,12 @@ body[data-theme="tron"] .pulse-head { r: 2.2; }
   .timeline .focus-label {
     position: absolute;
     top: 0;
+    left: 4px;
     right: 4px;
     margin: 0;
     line-height: 1.05;
     font-size: 14px;
-    text-align: right;
-    max-width: 50%;
+    text-align: left;
+    white-space: nowrap;
   }
 }
