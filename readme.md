@@ -2,7 +2,9 @@
 
 A scrubbable timeline of humanity's orbital launches by country, from Sputnik 1 in 1957 to the present. Frontend-only, no build step, Preact + htm loaded straight from a CDN.
 
-![Mockup](docs/mockup.png)
+| Paper | Tron |
+| --- | --- |
+| ![Paper mockup](./docs/paper.png) | ![Tron mockup](./docs/tron.png) |
 
 ## Run it
 
