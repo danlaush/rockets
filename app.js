@@ -1,4 +1,5 @@
 import { render } from "preact";
+import { useEffect } from "preact/hooks";
 import { html } from "./src/html.js";
 
 import { loadData } from "./src/data.js";
@@ -10,6 +11,7 @@ import { Timeline } from "./src/components/Timeline.js";
 import { CountryList } from "./src/components/CountryList.js";
 import { Stats } from "./src/components/Stats.js";
 import { theme, cycleTheme, THEMES } from "./src/themes.js";
+import { settingsOpen } from "./src/state.js";
 
 function Rocket() {
   return html`
@@ -33,6 +35,36 @@ function ThemeToggle() {
   `;
 }
 
+function SettingsModal({ launches }) {
+  const open = settingsOpen.value;
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e) {
+      if (e.key === "Escape") settingsOpen.value = false;
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  if (!open) return null;
+
+  function close() { settingsOpen.value = false; }
+
+  return html`
+    <div class="modal-backdrop" onClick=${close}>
+      <div class="modal-dialog"
+           role="dialog"
+           aria-modal="true"
+           aria-label="Chart country settings"
+           onClick=${(e) => e.stopPropagation()}>
+        <button class="modal-close" type="button" aria-label="Close" onClick=${close}>×</button>
+        <${CountryList} launches=${launches} />
+      </div>
+    </div>
+  `;
+}
+
 function App({ launches, countries }) {
   return html`
     <div class="app">
@@ -42,7 +74,13 @@ function App({ launches, countries }) {
           <span class="brand-full">GLOBAL ROCKET LAUNCH TRACKER</span>
           <span class="brand-short">ROCKETS</span>
         </div>
-        <div class="latest">Data: ${launches.source.name} · captured ${launches.source.captured_at}</div>
+        <a class="latest"
+           href=${launches.source.url}
+           target="_blank"
+           rel="noopener noreferrer">
+          <span class="latest-full">Data: ${launches.source.name} · captured ${launches.source.captured_at}</span>
+          <span class="latest-short">Data</span>
+        </a>
         <div class="spacer"></div>
         <${ThemeToggle} />
       </header>
@@ -62,6 +100,8 @@ function App({ launches, countries }) {
       <footer class="footer panel">
         <${Timeline} launches=${launches} />
       </footer>
+
+      <${SettingsModal} launches=${launches} />
     </div>
   `;
 }

@@ -183,7 +183,18 @@ body { overflow: hidden; }
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 120ms, color 120ms;
 }
+.header .latest:hover,
+.header .latest:focus-visible {
+  background: var(--highlight);
+  color: var(--fg);
+  outline: none;
+}
+/* Desktop shows the full capture line; mobile swaps to the short "Data" label. */
+.header .latest-short { display: none; }
 
 /* ---------- country list ---------- */
 
@@ -403,12 +414,28 @@ body[data-theme="tron"] .pulse-head { r: 2.2; }
   padding: 6px 10px 6px 0;
 }
 
+.timeline .chart-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
 .timeline .focus-label {
   font-family: var(--font-hand);
   font-size: 18px;
   color: var(--fg);
-  margin-bottom: 4px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
+/* Settings cog is only meaningful on mobile where the country list is hidden.
+   On desktop the same list is always visible in the sidebar, so we don't
+   render the button there. */
+.timeline .settings-btn { display: none; }
 .timeline svg {
   width: 100%;
   height: 80px;
@@ -475,11 +502,26 @@ body[data-theme="tron"] .pulse-head { r: 2.2; }
     padding: 4px 10px 0;
     gap: 8px;
   }
-  .header .latest { display: none; }
   .header .brand-full { display: none; }
   .header .brand-short { display: inline; }
   .header .brand { font-size: 24px; gap: 6px; }
   .header .brand svg { width: 20px; height: 20px; }
+
+  /* Reorder the header with flex `order` so the Data pill sits next to the
+     Theme toggle on the right. DOM order stays brand → latest → spacer →
+     theme-toggle (desktop), but on mobile the spacer slots in between brand
+     and the two right-side chips. */
+  .header .spacer       { order: 1; }
+  .header .latest       { order: 2; }
+  .header .theme-toggle { order: 3; }
+  .header .latest {
+    margin-left: 0;
+    max-width: none;
+    padding: 3px 10px;
+    font-size: 11px;
+  }
+  .header .latest-full  { display: none; }
+  .header .latest-short { display: inline; }
 
   /* Country list hidden on mobile (first pass; a picker will replace it). */
   .left { display: none; }
@@ -568,21 +610,97 @@ body[data-theme="tron"] .pulse-head { r: 2.2; }
   }
 
   /* Keep the chart entirely inside the footer panel. Absolute-positioning the
-     focus label stops it from pushing the svg down when it wraps, and the
-     extra bottom padding on track-wrap gives axis labels headroom. */
+     chart header stops it from pushing the svg down (so the sparkline always
+     gets its full 80px), and the extra bottom padding on track-wrap gives
+     axis labels headroom. */
   .timeline .track-wrap {
     padding: 0 4px 14px 0;
     overflow: hidden;
   }
-  .timeline .focus-label {
+  .timeline .chart-header {
     position: absolute;
     top: 0;
     left: 4px;
     right: 4px;
     margin: 0;
+    gap: 6px;
+  }
+  .timeline .focus-label {
     line-height: 1.05;
     font-size: 14px;
     text-align: left;
-    white-space: nowrap;
   }
+  .timeline .settings-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    flex: 0 0 auto;
+    background: transparent;
+    color: var(--fg);
+    border: 1.5px solid var(--fg);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 120ms;
+  }
+  .timeline .settings-btn:hover,
+  .timeline .settings-btn:focus-visible {
+    background: var(--highlight);
+    outline: none;
+  }
+  .timeline .settings-btn svg {
+    width: 15px;
+    height: 15px;
+    display: block;
+  }
+}
+
+/* ---------- modal (mobile settings / country picker) ---------- */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 16px 24px;
+  overflow-y: auto;
+}
+.modal-dialog {
+  position: relative;
+  background: var(--panel-bg);
+  border: 1.5px solid var(--fg);
+  border-radius: 10px;
+  width: 100%;
+  max-width: 360px;
+  padding: 14px 14px 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+.modal-dialog .panel {
+  margin: 0;
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+.modal-close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  font-size: 26px;
+  line-height: 1;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+.modal-close:hover,
+.modal-close:focus-visible {
+  color: var(--fg-muted);
+  outline: none;
 }

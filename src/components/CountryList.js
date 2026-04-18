@@ -1,13 +1,12 @@
 import { html } from "../html.js";
 import {
-  visibleCountries, focusCountry, virtualDate, toggleCountry,
+  visibleCountries, virtualDate, toggleCountry,
 } from "../state.js";
 import { cumulativeTotals } from "../playback.js";
 
 export function CountryList({ launches }) {
   const vd = virtualDate.value;
   const visible = visibleCountries.value;
-  const focus = focusCountry.value;
 
   // Cumulative across ALL entities (not just visible), so toggling visibility
   // doesn't make rows disappear. We just use "visible" for count styling.
@@ -18,14 +17,33 @@ export function CountryList({ launches }) {
     .map((e) => ({ ...e, count: totals[e.code] || 0 }))
     .sort((a, b) => b.count - a.count);
 
+  // Focus is derived state: a row is "focused" when it's the only country in
+  // the visible set. This keeps the name-click UX and the checkbox UX in sync
+  // without a separate focusCountry signal.
+  const soleFocus = visible.size === 1 ? [...visible][0] : null;
+
+  // Clicking a country name:
+  //   - if it's already the sole focus → clear focus by selecting every
+  //     country (chart returns to the worldwide total).
+  //   - otherwise → make this country the sole visible one (chart zooms to
+  //     that country's series).
+  function focusOrClear(code) {
+    const v = visibleCountries.value;
+    if (v.size === 1 && v.has(code)) {
+      visibleCountries.value = new Set(launches.entities.map((e) => e.code));
+    } else {
+      visibleCountries.value = new Set([code]);
+    }
+  }
+
   return html`
     <section class="panel country-list">
       <h2>Country</h2>
       <ol>
         ${rows.map((r) => html`
           <li key=${r.code}
-              class=${focus === r.code ? "focus" : ""}
-              onClick=${() => (focusCountry.value = r.code)}>
+              class=${soleFocus === r.code ? "focus" : ""}
+              onClick=${() => focusOrClear(r.code)}>
             <span class=${"box" + (visible.has(r.code) ? " on" : "")}
                   onClick=${(e) => { e.stopPropagation(); toggleCountry(r.code); }}
                   role="checkbox"

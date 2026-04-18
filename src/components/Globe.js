@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import {
   syncProjection, path, geoGraticule10,
 } from "../geo.js";
-import { rotation, focusCountry } from "../state.js";
+import { rotation, visibleCountries } from "../state.js";
 import { CODE_TO_GEOJSON_NAME } from "../data.js";
 import { LaunchLayer, activeCountryTints } from "./LaunchLayer.js";
 import { theme, countryColor } from "../themes.js";
@@ -66,7 +66,9 @@ export function Globe({ countries }) {
   // ~180 country paths don't diff on every rAF while pulses fly. The active
   // tinting is handled by ActiveCountryOverlay which renders on its own cadence.
   const rot = rotation.value;
-  const focus = focusCountry.value;
+  // Map focus = the country when exactly one is visible; null otherwise.
+  const visible = visibleCountries.value;
+  const focus = visible.size === 1 ? [...visible][0] : null;
   const themeId = theme.value;
   void rot;
 

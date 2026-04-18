@@ -2,8 +2,19 @@ import { html } from "../html.js";
 import { useEffect, useRef, useState } from "preact/hooks";
 import {
   virtualDate, playing, speedMult, SPEEDS,
-  START_DATE, END_DATE, visibleCountries,
+  START_DATE, END_DATE, visibleCountries, settingsOpen,
 } from "../state.js";
+
+function CogIcon() {
+  return html`
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+         aria-hidden="true">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+    </svg>
+  `;
+}
 
 const MS_PER_DAY = 86_400_000;
 
@@ -163,7 +174,15 @@ export function Timeline({ launches }) {
         `)}
       </div>
       <div class="track-wrap" ref=${wrapRef}>
-        <div class="focus-label">${selectionLabel} — ${fmtDate(vd)}</div>
+        <div class="chart-header">
+          <div class="focus-label">${selectionLabel} — ${fmtDate(vd)}</div>
+          <button class="settings-btn"
+                  type="button"
+                  aria-label="Choose countries"
+                  onClick=${() => (settingsOpen.value = true)}>
+            <${CogIcon} />
+          </button>
+        </div>
         <svg ref=${svgRef}
              viewBox=${`0 0 ${w} ${h}`}
              onPointerDown=${onPointerDown}

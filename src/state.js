@@ -22,9 +22,6 @@ export const speed = computed(() => SPEED_BASE * speedMult.value);
 const DEFAULT_VISIBLE = ["RU", "US", "CN", "EU", "JP", "IN", "IL", "IR", "KP", "KR", "FR", "GB", "AU"];
 export const visibleCountries = signal(new Set(DEFAULT_VISIBLE));
 
-// Which country is in focus for the sparkline.
-export const focusCountry = signal("RU");
-
 // Orthographic rotation [lambda, phi, gamma].
 export const rotation = signal([-90, -25, 0]);
 
@@ -62,3 +59,7 @@ export function toggleCountry(code) {
   if (next.has(code)) next.delete(code); else next.add(code);
   visibleCountries.value = next;
 }
+
+// Controls the mobile settings modal (country picker). Not used on desktop,
+// where the same list is always visible in the left sidebar.
+export const settingsOpen = signal(false);
